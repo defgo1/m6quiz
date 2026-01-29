@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting to know our M6 friends Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', cursive, sans-serif;
+            background: linear-gradient(135deg, #4CAF50 0%, #FDD835 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        body.high-contrast {
+            background: #000;
+            color: #FFFF00;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.high-contrast .container {
+            background: #000;
+            border: 5px solid #FFFF00;
+        }
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body.high-contrast h1 {
+            color: #FFFF00;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.3em;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background: #66BB6A;
+        }
+
+        body.high-contrast button {
+            background: #FFFF00;
+            color: #000;
+            border: 3px solid #000;
+        }
+
+        .quiz-setup, .quiz-screen, .answers-screen {
+            display: none;
+        }
+
+        .quiz-setup.active, .quiz-screen.active, .answers-screen.active {
+            display: block;
+        }
+
+        .student-assignment {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 3px solid #4CAF50;
+        }
+
+        body.high-contrast .student-assignment {
+            background: #000;
+            border-color: #FFFF00;
+        }
+
+        .assignment-item {
+            font-size: 1.5em;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .question-display {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .question-text {
+            font-size: 2.5em;
+            color: #4CAF50;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        body.high-contrast .question-text {
+            color: #FFFF00;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .choice {
+            background: #FDD835;
+            color: #333;
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 1.8em;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+
+        body.high-contrast .choice {
+            background: #FFFF00;
+            color: #000;
+            border: 3px solid #000;
+        }
+
+        .reader-name {
+            font-size: 1.5em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        body.high-contrast .reader-name {
+            color: #FFFF00;
+        }
+
+        .flashcard {
+            width: 600px;
+            height: 400px;
+            margin: 50px auto;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .flashcard-front {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .flashcard-back {
+            background: #FDD835;
+            color: #333;
+            font-weight: bold;
+            transform: rotateY(180deg);
+        }
+
+        body.high-contrast .flashcard-front,
+        body.high-contrast .flashcard-back {
+            background: #000;
+            color: #FFFF00;
+            border: 5px solid #FFFF00;
+        }
+
+        .answer-question {
+            font-size: 1.8em;
+            color: #4CAF50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        body.high-contrast .answer-question {
+            color: #FFFF00;
+        }
+
+        .zoom-level {
+            font-size: 1em;
+        }
+
+        .zoom-level.zoom-1 {
+            font-size: 1.2em;
+        }
+
+        .zoom-level.zoom-2 {
+            font-size: 1.4em;
+        }
+
+        .zoom-level.zoom-3 {
+            font-size: 1.6em;
+        }
+
+        .celebration {
+            text-align: center;
+            font-size: 4em;
+            color: #4CAF50;
+            padding: 100px 20px;
+            line-height: 1.8;
+        }
+
+        body.high-contrast .celebration {
+            color: #FFFF00;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .controls, .quiz-setup, .quiz-screen, .answers-screen {
+                display: none !important;
+            }
+            
+            #print-questions {
+                display: block !important;
+            }
+            
+            .print-question {
+                page-break-inside: avoid;
+                margin-bottom: 40px;
+                border: 2px solid #4CAF50;
+                padding: 20px;
+                border-radius: 10px;
+            }
+            
+            .print-choices p {
+                margin: 10px 0;
+                font-size: 1.2em;
+            }
+            
+            .answer-space {
+                border-top: 2px solid #4CAF50;
+                margin-top: 20px;
+                height: 60px;
+            }
+        }
+
+        #print-questions {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .flashcard {
+                width: 90%;
+                height: 300px;
+            }
+            
+            .flashcard-front, .flashcard-back {
+                font-size: 1.8em;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .question-text {
+                font-size: 1.8em;
+            }
+            
+            .choice {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 Getting to know our M6 friends 🌟</h1>
+        
+        <div class="controls">
+            <button onclick="toggleSound()">🔊 Sound: <span id="sound-status">ON</span></button>
+            <button onclick="toggleContrast()">🎨 High Contrast</button>
+            <button onclick="zoomIn()">🔍 Zoom In</button>
+            <button onclick="zoomOut()">🔍 Zoom Out</button>
+            <button onclick="printQuestions()">🖨️ Print Questions</button>
+        </div>
+
+        <div class="quiz-setup active">
+            <div style="text-align: center; padding: 40px;">
+                <p style="font-size: 2em; margin-bottom: 30px; color: #4CAF50;">
+                    Welcome to our class quiz! Let's learn about each other! 😊
+                </p>
+                <button onclick="assignQuestions()" style="font-size: 1.5em; padding: 25px 50px;">
+                    ▶️ Start Quiz
+                </button>
+            </div>
+        </div>
+
+        <div class="quiz-screen">
+            <div id="question-display" class="question-display"></div>
+            <div class="controls">
+                <button id="back-btn" onclick="previousQuestion()" style="display: none;">⬅️ Back</button>
+                <button onclick="nextQuestion()">Next ➡️</button>
+            </div>
+        </div>
+
+        <div class="answers-screen">
+            <div class="answer-question" id="answer-question"></div>
+            <div class="flashcard" id="flashcard" onclick="flipCard()">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        Click to see answer! 🤔
+                    </div>
+                    <div class="flashcard-back" id="answer-text">
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button id="back-answer-btn" onclick="previousAnswer()" style="display: none;">⬅️ Back</button>
+                <button onclick="nextAnswer()">Next ➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="print-questions"></div>
+
+    <script>
+        const students = ['William', 'Mitchell', 'Heath', 'Edie', 'Larnai'];
+
+        const questions = [
+            // Happiness Questions
+            { student: 'Mitchell', question: "Who is happiest when spending time with mum and dad?", choices: ['William', 'Mitchell', 'Heath', 'Edie'], answer: 'Mitchell' },
+            { student: 'William', question: "Which student is happiest when playing with their dog?", choices: ['Heath', 'Mitchell', 'William', 'Larnai'], answer: 'William' },
+            { student: 'Larnai', question: "Who is happiest when spending time with friends and family?", choices: ['Edie', 'Heath', 'Mitchell', 'Larnai'], answer: 'Larnai' },
+            { student: 'Edie', question: "Which student is happiest when spending time with their puppy named Jade?", choices: ['Edie', 'William', 'Heath', 'Mitchell'], answer: 'Edie' },
+            { student: 'Heath', question: "Who is happiest when playing video games?", choices: ['William', 'Heath', 'Larnai', 'Mitchell'], answer: 'Heath' },
+            
+            // Travel Dreams
+            { student: 'William', question: "Which student would really like to travel to Japan?", choices: ['Mitchell', 'William', 'Both Mitchell and William', 'Heath'], answer: 'Both Mitchell and William' },
+            { student: 'Larnai', question: "Who really wants to travel to Bali?", choices: ['Edie', 'Heath', 'Larnai', 'William'], answer: 'Larnai' },
+            { student: 'Edie', question: "Which student wants to travel to England and has already been to Doncaster?", choices: ['Mitchell', 'Edie', 'William', 'Heath'], answer: 'Edie' },
+            { student: 'Heath', question: "Who wants to travel to SeaWorld?", choices: ['Larnai', 'William', 'Heath', 'Mitchell'], answer: 'Heath' },
+            
+            // Favourite Foods
+            { student: 'Mitchell', question: "Whose favourite foods include tuna and pasta bake?", choices: ['William', 'Heath', 'Mitchell', 'Edie'], answer: 'Mitchell' },
+            { student: 'William', question: "Which two students say McDonald's is their favourite food?", choices: ['William and Heath', 'Mitchell and Larnai', 'Edie and Heath', 'William and Edie'], answer: 'William and Heath' },
+            { student: 'Larnai', question: "Who loves foods like sushi, KFC, Hungry Jack's, and Thai food?", choices: ['Mitchell', 'Heath', 'Edie', 'Larnai'], answer: 'Larnai' },
+            
+            // Toys, Games & Animals
+            { student: 'Mitchell', question: "Which student's favourite game is Super Smash Bros?", choices: ['Heath', 'Mitchell', 'Both Heath and Mitchell', 'William'], answer: 'Both Heath and Mitchell' },
+            { student: 'Larnai', question: "Who loves playing Minecraft and Roblox?", choices: ['William', 'Larnai', 'Edie', 'Mitchell'], answer: 'Larnai' },
+            { student: 'Heath', question: "If they could be an animal, who would choose a monkey?", choices: ['William', 'Mitchell', 'Heath', 'Edie'], answer: 'Heath' }
+        ];
+
+        let currentQuestionIndex = 0;
+        let currentAnswerIndex = 0;
+        let soundEnabled = true;
+        let zoomLevel = 0;
+        let assignments = {};
+        let audioContext;
+
+        function playSound(frequency, duration) {
+            if (!soundEnabled) return;
+            
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-status').textContent = soundEnabled ? 'ON' : 'OFF';
+            if (soundEnabled) playSound(523.25, 0.2);
+        }
+
+        function toggleContrast() {
+            document.body.classList.toggle('high-contrast');
+            playSound(440, 0.2);
+        }
+
+        function zoomIn() {
+            if (zoomLevel < 3) {
+                zoomLevel++;
+                updateZoom();
+                playSound(523.25, 0.15);
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > 0) {
+                zoomLevel--;
+                updateZoom();
+                playSound(392, 0.15);
+            }
+        }
+
+        function updateZoom() {
+            document.querySelector('.container').className = 'container zoom-level zoom-' + zoomLevel;
+        }
+
+        function assignQuestions() {
+            playSound(659.25, 0.3);
+            
+            // Assign questions ensuring students don't read their own
+            const studentList = [...students];
+            assignments = {};
+            
+            questions.forEach((q, index) => {
+                const availableReaders = studentList.filter(s => s !== q.student);
+                const reader = availableReaders[Math.floor(Math.random() * availableReaders.length)];
+                assignments[index] = reader;
+            });
+            
+            document.querySelector('.quiz-setup').classList.remove('active');
+            document.querySelector('.quiz-screen').classList.add('active');
+            
+            // Reset to first question and update navigation
+            currentQuestionIndex = 0;
+            displayQuestion(0);
+            currentQuestionIndex = 1;
+            updateNavigationButtons();
+        }
+
+        function displayQuestion(index) {
+            const q = questions[index];
+            const display = document.getElementById('question-display');
+            
+            display.innerHTML = `
+                <div class="question-text">${q.question}</div>
+                <div class="choices">
+                    ${q.choices.map(choice => `<div class="choice">${choice}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        function nextQuestion() {
+            playSound(523.25, 0.2);
+            
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion(currentQuestionIndex);
+                currentQuestionIndex++;
+                updateNavigationButtons();
+            } else {
+                startAnswers();
+            }
+        }
+
+        function previousQuestion() {
+            playSound(392, 0.2);
+            
+            if (currentQuestionIndex > 1) {
+                currentQuestionIndex--;
+                displayQuestion(currentQuestionIndex - 1);
+                updateNavigationButtons();
+            }
+        }
+
+        function updateNavigationButtons() {
+            const backBtn = document.getElementById('back-btn');
+            
+            // Show back button if we're past the first question
+            if (currentQuestionIndex > 1) {
+                backBtn.style.display = 'inline-block';
+            } else {
+                backBtn.style.display = 'none';
+            }
+        }
+
+        function startAnswers() {
+            playSound(783.99, 0.5);
+            document.querySelector('.quiz-screen').classList.remove('active');
+            document.querySelector('.answers-screen').classList.add('active');
+            
+            displayAnswer(0);
+        }
+
+        function displayAnswer(index) {
+            const q = questions[index];
+            document.getElementById('answer-question').textContent = `Question ${index + 1}: ${q.question}`;
+            document.getElementById('answer-text').innerHTML = `<strong>${q.answer}</strong>`;
+            
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.remove('flipped');
+            
+            updateAnswerNavigationButtons();
+        }
+
+        function flipCard() {
+            playSound(659.25, 0.3);
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextAnswer() {
+            playSound(523.25, 0.2);
+            currentAnswerIndex++;
+            
+            if (currentAnswerIndex < questions.length) {
+                displayAnswer(currentAnswerIndex);
+                updateAnswerNavigationButtons();
+            } else {
+                showCelebration();
+            }
+        }
+
+        function previousAnswer() {
+            playSound(392, 0.2);
+            
+            if (currentAnswerIndex > 0) {
+                currentAnswerIndex--;
+                displayAnswer(currentAnswerIndex);
+                updateAnswerNavigationButtons();
+            }
+        }
+
+        function updateAnswerNavigationButtons() {
+            const backBtn = document.getElementById('back-answer-btn');
+            
+            // Show back button if we're past the first answer
+            if (currentAnswerIndex > 0) {
+                backBtn.style.display = 'inline-block';
+            } else {
+                backBtn.style.display = 'none';
+            }
+        }
+
+        function showCelebration() {
+            playSound(523.25, 0.2);
+            playSound(659.25, 0.2);
+            playSound(783.99, 0.3);
+            
+            document.querySelector('.answers-screen').innerHTML = `
+                <div class="celebration">
+                    🎉 Well Done Everyone! 🎉<br>
+                    🌟 You're All Stars! 🌟<br>
+                    😊 Great Job Getting to Know Each Other! 😊
+                </div>
+            `;
+        }
+
+        function printQuestions() {
+            const printContainer = document.getElementById('print-questions');
+            printContainer.innerHTML = '';
+            
+            questions.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = 'print-question';
+                div.innerHTML = `
+                    <h3>Question ${index + 1}</h3>
+                    <p><strong>${q.question}</strong></p>
+                    <div class="print-choices">
+                        ${q.choices.map(choice => `<p>○ ${choice}</p>`).join('')}
+                    </div>
+                    <p><strong>Your Answer:</strong></p>
+                    <div class="answer-space"></div>
+                `;
+                printContainer.appendChild(div);
+            });
+            
+            window.print();
+        }
+    </script>
+</body>
+</html>
